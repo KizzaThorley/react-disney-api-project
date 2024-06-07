@@ -1,25 +1,28 @@
 import React from 'react'
 import DisplayPage from './components/DisplayPage'
+import CharactureDisplay from './components/CharactureDisplay'
 import './App.css'
 
 function App() {
 
   const [search, setSearch] = React.useState('')
-  const [disneyCharactures, setDisneyCharactures] = React.useState([])
-  
+  const [disneyCharactures, setDisneyCharacters] = React.useState([])
   const [pageNumber, setPageNumber] = React.useState(1)
+  const [selectedCharacter, setSelectedCharacter] = React.useState({})
 
-  async function fetchDisneyCharactures() {
-      const resp = await fetch(`https://api.disneyapi.dev/character`)
+  async function fetchDisneyCharacters(
+
+  ) {
+      const resp = await fetch(`https://api.disneyapi.dev/character?page=${pageNumber}`)
       const characterlist = await resp.json()
-      setDisneyCharactures(characterlist.data)
+      setDisneyCharacters(characterlist.data)
 console.log('this just ran');
 
   }
 
   React.useEffect(() => {
-fetchDisneyCharactures()
-  }, [])
+fetchDisneyCharacters()
+  }, [pageNumber])
 
 function handleSearch(e) {
   setSearch(e.target.value)
@@ -32,21 +35,42 @@ function searchFilterCharactures() {
     })
 }
 
+function handlePageNumber(e) {
+
+if(e.target.id === 'down-button') {
+  
+return setPageNumber(pageNumber - 1)  
+} 
+ if(e.target.id === 'up-button') {
+  return setPageNumber(pageNumber + 1)
+}
+}
 // console.log(disneyCharactures);
-console.log(search);
+// console.log(search);
+console.log(selectedCharacter);
   return (
     <>
-     <h1> Hello World</h1>
+    <nav></nav>
+     <h1> Disney characters</h1>
+     <CharactureDisplay 
+     character={selectedCharacter}
+     setSelectedCharacter={setSelectedCharacter}/> 
+     <div className='inputs'>
+{(pageNumber !== 1) ?  <button className='page-button' onClick={handlePageNumber}  id='down-button'>page {(pageNumber-1)}</button> 
+: <button className='page-button'> On first page </button>}
      <input
      placeholder='Search This Page'
      value={search}
      onChange={handleSearch}>
      </input>
-     <button>page {(pageNumber-1)}</button>
-     <button>Page {pageNumber +1}</button>
+ 
+     {(pageNumber !== 149) ?  <button className='page-button' onClick={handlePageNumber}  id='up-button'>page {(pageNumber+1)}</button> 
+: <button className='page-button'> On Last page </button>}
+</div>
      <DisplayPage 
-     disneyCharactures={searchFilterCharactures()}
-     search={search} />
+     disneyCharacter={searchFilterCharactures()}
+     search={search}
+     setSelectedCharacter={setSelectedCharacter} />
     </>
   )
 }
